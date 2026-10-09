@@ -1,0 +1,86 @@
+from datetime import datetime
+from pathlib import Path
+
+from flask import (Blueprint, current_app, flash, jsonify, render_template, request,
+                   url_for)
+from werkzeug.utils import secure_filename
+
+from app.config import BASE_DIR, UPLOAD_FOLDER
+from app.database import add_student, get_all_attendance, get_all_students, get_summary, get_today_attendance
+from app.services.facial_recognition import encode_image_from_file, persist_known_face, recognize_from_base64_image
+
+bp = Blueprint("main", __name__)
+
+
+@bp.route("/")
+def index():
+    summary = get_summary()
+    students = get_all_students()
+    attendance_today = get_today_attendance()
+    return render_template(
+        "index.html",
+        summary=summary,
+        students=students,
+        attendance_today=attendance_today,
+    )
+
+
+@bp.route("/register", methods=["GET", "POST"])
+def register_student():
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        roll_number = request.form.get("roll_number", "").strip()
+        department = request.form.get("department", "").strip()
+        photo = request.files.get("photo")
+
+        if not all([name, roll_number, department]) or photo is None or photo.filename == "":
+            flash("Please complete all fields and upload a student photo.", "error")
+            return render_template("register.html")
+
+        filename = secure_filename(photo.filename)
+        upload_dir = Path(current_app.config["UPLOAD_FOLDER"])
+        upload_dir.mkdir(parents=True, exist_ok=True)
+        saved_path = upload_dir / f"{roll_number}_{filename}"
+        photo.save(saved_path)
+
+        try:
+            face_encoding = encode_image_from_file(str(saved_path))
+        except ValueError as exc:
+            flash(str(exc), "error")
+            if saved_path.exists():
+                saved_path.unlink()
+            return render_template("register.html")
+
+        try:
+            student_id = add_student(name, roll_number, department, str(saved_path))
+            persist_known_face(student_id, name, face_encoding)
+            flash("Student registered successfully.", "success")
+            return render_template("register.html", success=True)
+        except Exception as exc:
+            flash(f"Failed to register student: {exc}", "error")
+            return render_template("register.html")
+
+    return render_template("register.html")
+
+
+@bp.route("/attendance")
+def attendance_page():
+    records = get_all_attendance()
+    return render_template("attendance.html", records=records)
+
+
+@bp.route("/api/recognize", methods=["POST"])
+def api_recognize():
+    payload = request.get_json(silent=True) or {}
+    image_data = payload.get("image")
+
+    if not image_data:
+        return jsonify({"status": "error", "message": "No image captured."}), 400
+
+    result = recognize_from_base64_image(image_data)
+    return jsonify(result)
+
+
+@bp.route("/api/attendance")
+def api_attendance():
+    return jsonify({"records": get_all_attendance()})

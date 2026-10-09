@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Attendance | Smart Attendance{% endblock %}
+
+{% block content %}
+<section class="card recognition-card">
+    <div class="section-header">
+        <h1>Face Recognition Attendance</h1>
+    </div>
+
+    <div class="camera-panel">
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="canvas" width="640" height="480" hidden></canvas>
+    </div>
+
+    <div class="recognition-actions">
+        <button id="startCameraBtn" class="primary-btn">Start Camera</button>
+        <button id="captureBtn" class="secondary-btn">Capture & Mark Attendance</button>
+    </div>
+
+    <div id="resultBox" class="result-box">
+        Camera is off. Start the camera to begin recognition.
+    </div>
+</section>
+
+<section class="card table-section">
+    <h2>Attendance Log</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Roll Number</th>
+                <th>Department</th>
+                <th>Date</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if records %}
+                {% for record in records %}
+                <tr>
+                    <td>{{ record.name }}</td>
+                    <td>{{ record.roll_number }}</td>
+                    <td>{{ record.department }}</td>
+                    <td>{{ record.date }}</td>
+                    <td>{{ record.check_in_time }}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="5">No attendance records available.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</section>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,75 @@
+const video = document.getElementById('video');
+const canvas = document.getElementById('canvas');
+const resultBox = document.getElementById('resultBox');
+const startCameraBtn = document.getElementById('startCameraBtn');
+const captureBtn = document.getElementById('captureBtn');
+
+let stream = null;
+let recognitionLocked = false;
+
+async function startCamera() {
+    if (stream) {
+        return;
+    }
+
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user' },
+            audio: false,
+        });
+        video.srcObject = stream;
+        resultBox.textContent = 'Camera started. Capture a frame to mark attendance.';
+        resultBox.className = 'result-box';
+    } catch (error) {
+        resultBox.textContent = 'Unable to access the camera. Please allow camera permissions.';
+        resultBox.className = 'result-box error';
+    }
+}
+
+function captureFrame() {
+    if (!stream) {
+        resultBox.textContent = 'Start the camera before capturing.';
+        resultBox.className = 'result-box error';
+        return;
+    }
+
+    if (recognitionLocked) {
+        return;
+    }
+
+    recognitionLocked = true;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = canvas.toDataURL('image/jpeg', 0.9);
+
+    fetch('/api/recognize', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ image: imageData }),
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.status === 'success') {
+                const student = data.student;
+                resultBox.textContent = `Attendance marked for ${student.name} (${student.roll_number}) at ${data.time}.`;
+                resultBox.className = 'result-box success';
+            } else {
+                resultBox.textContent = data.message || 'No matching student found.';
+                resultBox.className = 'result-box error';
+            }
+        })
+        .catch(() => {
+            resultBox.textContent = 'Recognition request failed. Please try again.';
+            resultBox.className = 'result-box error';
+        })
+        .finally(() => {
+            setTimeout(() => {
+                recognitionLocked = false;
+            }, 3500);
+        });
+}
+
+startCameraBtn.addEventListener('click', startCamera);
+captureBtn.addEventListener('click', captureFrame);

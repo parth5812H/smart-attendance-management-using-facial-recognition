@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Register Student | Smart Attendance{% endblock %}
+
+{% block content %}
+<section class="card form-card">
+    <h1>Register New Student</h1>
+    <form method="post" enctype="multipart/form-data" class="student-form">
+        <div class="field-row">
+            <label for="name">Full Name</label>
+            <input id="name" name="name" type="text" placeholder="Enter student name" required>
+        </div>
+
+        <div class="field-row">
+            <label for="roll_number">Roll Number</label>
+            <input id="roll_number" name="roll_number" type="text" placeholder="Enter roll number" required>
+        </div>
+
+        <div class="field-row">
+            <label for="department">Department</label>
+            <input id="department" name="department" type="text" placeholder="e.g. Computer Science" required>
+        </div>
+
+        <div class="field-row">
+            <label for="photo">Student Photo</label>
+            <input id="photo" name="photo" type="file" accept="image/*" required>
+        </div>
+
+        <button type="submit" class="primary-btn">Register Student</button>
+    </form>
+</section>
+{% endblock %}

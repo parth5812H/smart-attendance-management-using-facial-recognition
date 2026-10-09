@@ -1,0 +1,64 @@
+# Smart Attendance Management Using Facial Recognition
+
+A full-stack Python project for managing student attendance using facial recognition. The app stores student data in SQLite, registers faces by uploading student photos, and marks attendance via webcam-based face recognition.
+
+## Features
+
+- Student registration with photo upload
+- Face encoding and recognition using `face_recognition`
+- Attendance marking with webcam capture
+- Dashboard for total students and present students
+- SQLite-based attendance record storage
+- Responsive web interface
+
+## Tech Stack
+
+- Python 3.10+
+- Flask
+- OpenCV + face_recognition
+- SQLite
+- HTML / CSS / JavaScript
+
+## Project Structure
+
+- `app/` – Flask application package
+- `app/templates/` – HTML templates
+- `app/static/` – CSS and JS files
+- `data/` – SQLite database and recognition storage
+- `requirements.txt` – Python dependencies
+- `app.py` – app entry point
+
+## Setup
+
+1. Clone the repository
+2. Create a virtual environment
+3. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+4. Run the app:
+
+```bash
+python app.py
+```
+
+5. Open the application in your browser:
+
+```text
+http://127.0.0.1:5000/
+```
+
+## How to Use
+
+1. Go to the Register Student page.
+2. Add the student's name, roll number, department, and a clear photo.
+3. Visit the Attendance page and allow camera access.
+4. Capture a webcam frame to mark attendance automatically.
+
+## Notes
+
+- The face recognition library requires a compatible environment for `dlib` and OpenCV.
+- Some systems may require `cmake` and compiler tools before installing dependencies.
+- Attendance is unique per student per day.

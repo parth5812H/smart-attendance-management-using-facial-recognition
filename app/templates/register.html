@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard | Smart Attendance{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div>
+        <p class="eyebrow">Overview</p>
+        <h1>Smart Attendance Management</h1>
+        <p class="subtitle">Face-based attendance for classroom and office tracking.</p>
+    </div>
+</section>
+
+<section class="stats-grid">
+    <div class="card stat-card">
+        <span>Total Students</span>
+        <strong>{{ summary.total_students }}</strong>
+    </div>
+    <div class="card stat-card">
+        <span>Present Today</span>
+        <strong>{{ summary.present_today }}</strong>
+    </div>
+</section>
+
+<section class="card table-section">
+    <div class="section-header">
+        <h2>Today's Attendance</h2>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Roll Number</th>
+                <th>Department</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if attendance_today %}
+                {% for entry in attendance_today %}
+                <tr>
+                    <td>{{ entry.name }}</td>
+                    <td>{{ entry.roll_number }}</td>
+                    <td>{{ entry.department }}</td>
+                    <td>{{ entry.check_in_time }}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="4">No attendance recorded yet today.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</section>
+
+<section class="card table-section">
+    <div class="section-header">
+        <h2>Registered Students</h2>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Roll Number</th>
+                <th>Department</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if students %}
+                {% for student in students %}
+                <tr>
+                    <td>{{ student.name }}</td>
+                    <td>{{ student.roll_number }}</td>
+                    <td>{{ student.department }}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="3">No students have been registered.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}
